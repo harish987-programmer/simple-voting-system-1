@@ -1,0 +1,110 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_CANDIDATES 3
+#define NAME_LEN 50
+
+// Structure for a Voter (Node in linked list)
+typedef struct Voter {
+    int voterID;
+    struct Voter* next;
+} Voter;
+
+// Structure for Candidate
+typedef struct Candidate {
+    char name[NAME_LEN];
+    int voteCount;
+    Voter* voterList;  // Head of linked list
+} Candidate;
+
+// Global array of candidates
+Candidate candidates[MAX_CANDIDATES] = {
+    {"Alice", 0, NULL},
+    {"Bob", 0, NULL},
+    {"Charlie", 0, NULL}
+};
+
+// Function to create a new voter node
+Voter* createVoter(int id) {
+    Voter* newVoter = (Voter*)malloc(sizeof(Voter));
+    newVoter->voterID = id;
+    newVoter->next = NULL;
+    return newVoter;
+}
+
+// Function to cast a vote
+void castVote() {
+    int voterID, choice;
+
+    printf("Enter your Voter ID: ");
+    scanf("%d", &voterID);
+
+    printf("Choose a candidate to vote:\n");
+    for (int i = 0; i < MAX_CANDIDATES; i++) {
+        printf("%d. %s\n", i + 1, candidates[i].name);
+    }
+
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+
+    if (choice < 1 || choice > MAX_CANDIDATES) {
+        printf("Invalid choice. Vote not counted.\n");
+        return;
+    }
+
+    // Add voter to candidate's linked list
+    Candidate* selected = &candidates[choice - 1];
+    Voter* newVoter = createVoter(voterID);
+    newVoter->next = selected->voterList;
+    selected->voterList = newVoter;
+
+    selected->voteCount++;
+    printf("Vote cast successfully for %s!\n", selected->name);
+}
+
+// Function to display results
+void displayResults() {
+    printf("\n--- Voting Results ---\n");
+    for (int i = 0; i < MAX_CANDIDATES; i++) {
+        printf("Candidate: %s | Votes: %d\n", candidates[i].name, candidates[i].voteCount);
+
+        printf("Voters who voted for %s: ", candidates[i].name);
+        Voter* curr = candidates[i].voterList;
+        while (curr != NULL) {
+            printf("%d ", curr->voterID);
+            curr = curr->next;
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    int option;
+
+    while (1) {
+        printf("\n--- Simple Voting System ---\n");
+        printf("1. Cast Vote\n");
+        printf("2. View Results\n");
+        printf("3. Exit\n");
+        printf("Choose an option: ");
+        scanf("%d", &option);
+
+        switch (option) {
+            case 1:
+                castVote();
+                break;
+            case 2:
+                displayResults();
+                break;
+            case 3:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid option.\n");
+        }
+    }
+
+    return 0;
+}
